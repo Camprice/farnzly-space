@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="eng">
+<head>
+	<link rel="stylesheet" type="text/css" href="styles/dndstyle.css">
+	<meta charset="UTC-8">
+	<title>Spell Index</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="scripts/jquery.js"></script>
+	<script src="scripts/dice-roller.js"></script>
+	<script>
+		$(function(){
+			$("#submit").click(function(){
+				var spell_val = $("#search").val();
+				var class_list = $("#spellClass").val();
+				var spell_school = [];
+				$.each($(".school:checked"), function(){
+					spell_school.push($(this).val());
+				});
+				console.log(spell_school);
+				$.post("/myServ/pdo-test.php", {spell_name : spell_val, classList : class_list, school : spell_school}, function(data){
+					var jsObj = JSON.parse(data);
+					var output = ""
+					if(jsObj == "No Results"){
+						output = jsObj;
+					}else{
+						jsObj.sort(function(a,b){
+							return a.spell_name.localeCompare(b.spell_name);
+						});
+						jsObj.sort(function(a,b){
+							return parseFloat(a.spell_level) - parseFloat(b.spell_level);
+						});
+						for(var i = 0; jsObj.length>i; i++){
+							var spell = jsObj[i];
+							if (spell.higher_levels == ""){spell.higher_levels = "~"};
+							output += "<ul class='lvl"+spell.spell_level+"'><li><h3>" + spell.spell_name + "</h3></li><li>" + spell.spell_type + "</li><li>" + spell.casting_time + "</li><li>" + spell.spell_range + "</li><li>" + spell.components +"</li><li>" + spell.duration + "</li><li class='spellDesc'>" + spell.description + "</li><li>" + spell.higher_levels + "</li></ul>"; 
+						};
+					};
+					$("#spellContent").html(output);
+					$(".lvl0:first").before("<h2 class='lvlTitle'>Cantrips</h2>");
+					$(".lvl1:first").before("<h2 class='lvlTitle'>Level One</h2>");
+					$(".lvl2:first").before("<h2 class='lvlTitle'>Level Two</h2>");
+					$(".lvl3:first").before("<h2 class='lvlTitle'>Level Three</h2>");
+					$(".lvl4:first").before("<h2 class='lvlTitle'>Level Four</h2>");
+					$(".lvl5:first").before("<h2 class='lvlTitle'>Level Five</h2>");
+					$(".lvl6:first").before("<h2 class='lvlTitle'>Level Six</h2>");
+					$(".lvl7:first").before("<h2 class='lvlTitle'>Level Seven</h2>");
+					$(".lvl8:first").before("<h2 class='lvlTitle'>Level Eight</h2>");
+					$(".lvl9:first").before("<h2 class='lvlTitle'>Level Nine</h2>");
+				});
+			});
+		});
+	</script>
+</head>
+<body>
+	<header>
+		<h1>Magic Awaits You</h1>
+		<nav></nav>
+	</header>
+	<main class="row">
+		<div id="searchElm" class="col-3 secondary side">
+			<form class="spellForm">
+				Type the spell name here:<br/>
+				<input id="search" class="search" type="text" name="spell_name" placeholder="Leave blank to get all spells" /><input id="submit" class="submit" type="button" value="search"/><br/><br/>
+				Choose a specific class spellbook:
+				<select id="spellClass" class="spellClass">
+					<option value="all" selected>All</option>
+					<option value="bard">Bard</option>
+					<option value="cleric">Cleric</option>
+					<option value="druid">Druid</option>
+					<option value="paladin">Paladin</option>
+					<option value="ranger">Paladin</option>
+					<option value="sorcerer">Sorcerer</option>
+					<option value="warlock">Warlock</option>
+					<option value="wizard">Wizard</option>
+				</select>
+				<br/><br/>
+				<div>
+					Search for specific spell schools.<br/>
+					<input class="school" type="checkbox" value="abjuration"/>Abjuration<br/>
+					<input class="school" type="checkbox" value="conjuration" />Conjuration<br/>
+					<input class="school" type="checkbox" value="divination"/>Divination<br/>
+					<input class="school" type="checkbox" value="enchantment" />Enchantment<br/>
+					<input class="school" type="checkbox" value="evocation" />Evocation<br/>
+					<input class="school" type="checkbox" value="illusion" />Illusion<br/>
+					<input class="school" type="checkbox" value="necromancy"/>Necromancy<br/>
+					<input class="school" type="checkbox" value="transmutation" />Transmutation
+				</div>	
+			</form>
+			<form name="dice" class="spellForm">
+				<div class="diceDesc">Here's a dice roller for casting your spells</div>
+				<!--Input number of dice to roll-->
+				<input type="number" value=1 min=1 name="numbs" id="numbs" />
+				<!--Set number of sides-->
+				<select name="sides" id="sides">
+					<option value=4>d4</option>
+					<option value=6>d6</option>
+					<option value=8>d8</option>
+					<option value=10>d10</option>
+					<option value=12>d12</option>
+					<option value=20 selected>d20</option>
+					<option value=100>d100</option>
+				</select>
+				<input type="button" id="rollDice" value="Roll Them Dice!"/>
+				<p id="roll"></p>
+			</form>
+			<p class="sideDesc">
+				This site is the perfect place for all your spellcasting needs! You can only search for spells from the original 5th edition Players Handbook, but there could be spells from various expansions added in the future. 
+			</p>
+			<p class="sideDesc">
+				You can search for any spell returning results for partial names or full names. For example: searching for "fire" will return all spells with fire in the name. You can also limit your search to return just Wizard spells, or even all wizard spells from the Evocation and Divination spell schools, if that's what you want! If you just want to return all the spells, don't type in anything. You can use all or none of the search options and get exactly what you want. It's all up to you!
+			</p>
+		</div>
+		<div id="spellContent" class="col-9 tertiary main">
+
+		</div>
+	</main>
+	<footer>
+		Here is where the foot goes.
+	</footer>
+</body>
+</html>

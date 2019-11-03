@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link id="theme" rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+	<title>Code Class Capstone</title>
+	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script>
+		var Console = {
+			log : function(str){                     //outputs the argument of the function to the Console
+				this.ansr += str + "<br/>";
+				return "";
+			},
+			ansr : "",
+			elm_ht : function(){
+				return $("br", "#output").length;
+			},
+			scrll_ht: 0,
+			ht : function(){                         //used for helping scroll the output window to the bottom
+				this.scrll_ht += this.elm_ht()*30;
+				return this.scrll_ht;
+			},
+			roll: function(d,s){                    //rolls dice set by user
+				var dice=0;
+				var rolls = "";
+				for (var i=0; i<d; i++){
+					var res = Math.floor(Math.random()*s)+1;
+					var end = "";
+					if(i != d-1)
+						end = " , ";
+					else
+						end = " = ";
+
+					rolls += res + end;
+					dice += res;
+				};
+				rolls += dice;
+				if (s==20){
+					if (dice==20){
+						alert("Critical Hit!!!");
+					};
+					if (dice==1){
+						alert("Critical Failure!!!");
+					};	
+				};	
+				return rolls;
+			},
+			profiling : false,
+			help: "Console.log() will output the value inside the parenthesis to the output window. Useful for conditional statements, loops, or other functions where you want to print to the Console.<br/>Console.roll(d,s) rolls a set of dice where d is the number of dice and s is the number of sides. Normal values for s would be 4, 6, 8, 10, 12, 20, or 100, but you are not limited to these values. d should always be a positive number.",
+		};
+		$(function(){
+			var wWidth = $(window).width();
+			var dWidth = wWidth*.90;
+			var wHeight = $(window).height();
+			var dHeight = wHeight*.95;
+			$("#dialog-confirm").dialog({
+				resizable:true,
+				height:dHeight,
+				autoOpen:false,
+				width:dWidth,
+				modal:true,
+				buttons:{
+					Run:function(){
+						var input = $("#input").val();
+						var input_clean = input.replace(/[\n\r]/g, "<br/>");
+						input_clean = input_clean.replace(/\s/g, "&nbsp;");
+
+						var output = "";
+						var start = performance.now();
+						try{
+							output = window.eval(input);
+						}catch(err){
+							output = err.name + ":" + err.message;
+						};
+						var end = performance.now();
+						var perf = end - start;
+						if(Console.ansr!="") {
+							output = Console.ansr;
+						};
+						$("#output").append(
+							">" + input_clean + "<br/>" + output + "<br/>").scrollTop(Console.ht());
+						if(Console.profiling == true){
+							$("#output").append( perf + "ms" + "<br/>").scrollTop(Console.ht());
+						};
+						$("#input").val("");
+						Console.ansr = "";
+					},
+					"Clear All": function(){
+						$("#input").val("");
+						$("#output").html("");
+					},
+					"Toggle Profiling":function(){
+						Console.profiling = !Console.profiling;
+						var prof_stat = (Console.profiling)? "Profiling has been enabled": "Profiling has been disabled";
+						$("#output").append(prof_stat + "<br/>").scrollTop(Console.ht());
+					},
+				},
+			});
+			$("#btn-open").click(function(e){
+				$("#dialog-confirm").dialog("open");
+			});
+			$("#button1").click(function(e){
+				$("#theme").attr("href","https://code.jquery.com/ui/1.12.1/themes/dot-luv/jquery-ui.css");
+			});
+			$("#button2").click(function(e){
+				$("#theme").attr("href","https://code.jquery.com/ui/1.12.1/themes/hot-sneaks/jquery-ui.css");
+			});
+			$("#button3").click(function(e){
+				$("#theme").attr("href","https://code.jquery.com/ui/1.12.1/themes/blitzer/jquery-ui.css");
+			});
+			$("#button4").click(function(e){
+				$("#theme").attr("href","https://code.jquery.com/ui/1.12.1/themes/swanky-purse/jquery-ui.css");
+			});
+			$("#button5").click(function(e){
+				$("#theme").attr("href","https://code.jquery.com/ui/1.12.1/themes/trontastic/jquery-ui.css");
+			});
+			$("#button6").click(function(e){
+				$("#theme").attr("href","https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css");
+			});
+		});
+	</script>
+	<style>
+		h1{
+			text-align:center;
+		}
+		fieldset{
+			width:80%;
+			margin-left:10%;
+			margin-bottom:50px;
+		}
+		.button{
+			margin-right:80px;
+		}
+		.center{
+			text-align:center;
+		}
+		#content{
+			margin-top:150px;
+		}
+		#output{
+			padding-left:5px;
+			height:60%;
+			width:auto;
+			border:1px solid black;
+			overflow:auto;
+		}
+		#input{
+			padding-left:5px;
+			height: 23%;
+			width:100%;
+			border:1px solid black;
+			box-sizing: border-box;
+			resize: none;
+		}
+	</style>
+</head>
+<body>
+	<h1 class="ui-widget-header ui-corner-all">Cameron's Custom Javascript Console</h1>
+	<div class="center"><img src="https://makeawebsitehub.com/wp-content/uploads/2016/02/learn-code-e1455713167295.jpg" alt="Cool code picture" width="600" height="400"></div>
+	<div id="content">
+		<fieldset class="ui-widget ui-corner-all">
+			<legend>Change the theme!</legend>
+			<div class="center">
+				<button id="button1" class="ui-button ui-widget ui-corner-all button">Dot Luv</button>
+				<button id="button2" class="ui-button ui-widget ui-corner-all button">Hot Sneaks</button>
+				<button id="button3" class="ui-button ui-widget ui-corner-all button">Blitzer</button>
+				<button id="button4" class="ui-button ui-widget ui-corner-all button">Swanky Purse</button>
+				<button id="button5" class="ui-button ui-widget ui-corner-all button">Trontastic</button>
+				<button id="button6" class="ui-button ui-widget ui-corner-all">Reset</button>
+			</div>
+		</fieldset>
+		<div class="center">
+			<button id="btn-open" class="ui-button ui-widget ui-corner-al">
+			Click here to begin typing code!
+			</button>
+		</div>
+	</div>
+	<div id="dialog-confirm" title="Run Console.help to see some built in features.">
+		<p>
+			<div id="output"></div><br />
+			<textarea id="input"></textarea>
+		</p>
+	</div>
+</body>
+</html>
